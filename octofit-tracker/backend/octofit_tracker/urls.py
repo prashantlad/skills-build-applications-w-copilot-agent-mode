@@ -14,8 +14,25 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from django.http import HttpResponseRedirect
+
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'users': reverse('user-list', request=request, format=format),
+        'teams': reverse('team-list', request=request, format=format),
+        'activities': reverse('activity-list', request=request, format=format),
+        'workouts': reverse('workout-list', request=request, format=format),
+        'leaderboards': reverse('leaderboard-list', request=request, format=format),
+    })
 
 urlpatterns = [
+    path('', lambda request: HttpResponseRedirect('/api/')),  # Redirect / to /api/
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
+    path('api-root/', api_root, name='api-root'),
 ]
